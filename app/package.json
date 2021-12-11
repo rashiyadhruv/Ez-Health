@@ -39,6 +39,7 @@
   "dependencies": {
     "@taquito/beacon-wallet": "^9.0.0",
     "@taquito/taquito": "^9.0.0",
-    "file-loader": "^6.2.0"
+    "file-loader": "^6.2.0",
+    "svelte-routing": "^1.6.0"
   }
 }

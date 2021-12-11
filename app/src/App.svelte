@@ -4,7 +4,13 @@
   import type { ContractAbstraction, Wallet } from "@taquito/taquito";
   import { BeaconWallet } from "@taquito/beacon-wallet";
   import { NetworkType } from "@airgap/beacon-sdk";
+  import { Router, Link, Route } from "svelte-routing";
 
+  // pages
+  import Home from "./pages/Home.svelte";
+  import About from "./pages/About.svelte";
+
+  export let url = "";
   let Tezos: TezosToolkit;
   let wallet: BeaconWallet;
   let userAddress = "";
@@ -13,25 +19,22 @@
   const rpcUrl = "https://api.tez.ie/rpc/florencenet";
 
   const connect = async () => {
+    const Tezos = new TezosToolkit("https://mainnet-tezos.giganode.io");
+    const wallet = new BeaconWallet({ name: "Beacon Docs Taquito" });
+
+    Tezos.setWalletProvider(wallet);
+
     try {
-      wallet = new BeaconWallet({
-        name: "EZ-EMERGENCY",
-        preferredNetwork: NetworkType.FLORENCENET,
-      });
-      await wallet.requestPermissions({
-        network: {
-          type: NetworkType.FLORENCENET,
-          rpcUrl,
-        },
-      });
-      Tezos.setWalletProvider(wallet);
-      userAddress = await wallet.getPKH();
-    } catch (err) {
-      console.error(err);
-    } finally {
-      loadingProfile = false;
+      console.log("Requesting permissions...");
+      const permissions = await wallet.client.requestPermissions();
+      console.log("Got permissions:", permissions.address);
+    } catch (error) {
+      console.log("Got error:", error);
     }
   };
+
+  connect();
+
   const disconnect = () => {
     wallet.client.destroy();
     wallet = undefined;
@@ -50,12 +53,20 @@
       Tezos.setWalletProvider(wallet);
       userAddress = activeAccount.address;
       loadingProfile = false;
+      console.log("ALREADY CONNECTED");
+    } else {
+      console.log("NOT CONNECTED");
     }
   });
 </script>
 
-<main>
-  <div class="container">
-    <p>HELLO</p>
+<Router {url}>
+  <nav>
+    <Link to="/">Home</Link>
+    <Link to="about">About</Link>
+  </nav>
+  <div>
+    <Route path="/"><Home /></Route>
+    <Route path="/about"><About /></Route>
   </div>
-</main>
+</Router>
